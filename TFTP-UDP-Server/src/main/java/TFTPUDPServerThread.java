@@ -21,11 +21,11 @@ public class TFTPUDPServerThread extends Thread {
     public void run() {
         System.out.println(Instant.now() + " | EVENT: New Thread for " + receivedPacket.getAddress());
 
-        byte[] packetData = receivedPacket.getData();
-        int opcode = packetData[1]; // second byte
+        byte[] packetData = receivedPacket.getData(); // get the data in the received packet
+        int opcode = packetData[1]; // second byte of the data is an opcode
 
-        String[] sections = new String(packetData, StandardCharsets.UTF_8).split("\0");
-        String filename = sections[1].substring(1);
+        String[] sections = new String(packetData, StandardCharsets.UTF_8).split("\0"); // split null
+        String filename = sections[1].substring(1); // filename is second section
 
         try {
             InetAddress clientAddress = receivedPacket.getAddress();
@@ -45,9 +45,10 @@ public class TFTPUDPServerThread extends Thread {
                     int blockNumber = 1;
 
                     int readLength;
-                    while ((readLength = fis.read(packetData)) != -1) { // while there are bytes to read
+                    while ((readLength = fis.read(packetData)) != -1) { // while there are more bytes to read
+                        // create header according to RFC-1350
                         byte[] header = new byte[]{(byte) 0, (byte) 3, (byte) ((blockNumber >> 8) & 0xFF), (byte) (blockNumber & 0xFF)};
-                        byte[] assembledData = new byte[4 + readLength];
+                        byte[] assembledData = new byte[4 + readLength]; // 512 bytes of data + header
 
                         for (int i = 0; i < 4; i++) {
                             assembledData[i] = header[i]; // adding the opcode and block number
@@ -82,7 +83,7 @@ public class TFTPUDPServerThread extends Thread {
 
                 File fileToReceive = new File(filename); // create a new file with the correct filename
 
-                byte[] ackByte = new byte[]{(byte) 0, (byte) 4, (byte) 0, (byte) 0};
+                byte[] ackByte = new byte[]{(byte) 0, (byte) 4, (byte) 0, (byte) 0}; // send 0400 ack packet
                 DatagramPacket ackPacket = new DatagramPacket(ackByte, ackByte.length, clientAddress, clientPort);
                 socket.send(ackPacket);
                 System.out.println(Instant.now() + " | EVENT: Sent Ack 0");

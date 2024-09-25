@@ -43,11 +43,11 @@ public class TFTPTCPServerThread extends Thread {
                 fis = new FileInputStream(filename);
 
                 int read;
-                while ((read = fis.read(buf)) != -1) {
+                while ((read = fis.read(buf)) != -1) { // read all bytes in the file
                     System.out.println(Instant.now() + " | EVENT: Sent Packet");
-                    out.write(buf, 0, read);
-                    out.flush();
-                    buf = new byte[512]; // get ready for next packet
+                    out.write(buf, 0, read); // send the bytes
+                    out.flush(); // ensures all bytes were written correctly
+                    buf = new byte[512]; // empty buf for next packet
                 }
                 System.out.println(Instant.now() + " | EVENT: Complete");
                 fis.close();
@@ -63,7 +63,7 @@ public class TFTPTCPServerThread extends Thread {
                     int data = in.read(buf, 0, buf.length);
 
                     fos.write(buf, 0, data);
-                    if (data != 512) {
+                    if (data != 512) { // ends when there are not 512 more bytes to send
                         System.out.println(Instant.now() + " | EVENT: Complete");
                         fos.close();
                         break; // prevents connection reset error

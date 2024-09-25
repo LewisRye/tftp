@@ -16,7 +16,7 @@ public class TFTPUDPClient {
 
         int input = 0;
         boolean done = false;
-        while (!done) {
+        while (!done) { // repeat until user inputs a legal choice
             input = sc.nextInt();
 
             if (!(input == 1 || input == 2)) {

@@ -12,7 +12,7 @@ public class TFTPTCPClient {
 
         int input = 0;
         boolean done = false;
-        while (!done) {
+        while (!done) { // repeat until the user enters a legal option
             input = sc.nextInt();
 
             if (!(input == 1 || input == 2)) {
@@ -36,14 +36,14 @@ public class TFTPTCPClient {
 
                 File file = new File(filename);
                 byte[] userInput = Arrays.copyOf(("01 " + file.getName() + " 0 octet 0").getBytes(), 512);
-                out.write(userInput);
+                out.write(userInput); // send a read request packet
                 out.flush();
                 System.out.println(Instant.now() + " | EVENT: Sent RRQ for " + filename);
 
                 FileOutputStream fos = new FileOutputStream(file);
 
                 while (true) {
-                    int data = in.read(buf, 0, buf.length);
+                    int data = in.read(buf, 0, buf.length); // read the response from the server
                     if (new String(buf, 0, data).equals("File Not Found")) {
                         System.out.println(Instant.now() + " | ERROR: File Not Found");
                         fos.close();
@@ -75,7 +75,7 @@ public class TFTPTCPClient {
                 }
 
                 byte[] userInput = Arrays.copyOf(("02 " + file.getName() + " 0 octet 0").getBytes(), 512);
-                out.write(userInput);
+                out.write(userInput); // send a write request
                 out.flush();
                 System.out.println(Instant.now() + " | EVENT: Sent WRQ for " + filename);
 
@@ -84,7 +84,7 @@ public class TFTPTCPClient {
                 int read;
                 while ((read = fis.read(buf)) != -1) {
                     System.out.println(Instant.now() + " | EVENT: Sent Packet");
-                    out.write(buf, 0, read);
+                    out.write(buf, 0, read); // send the packet containing 512 bytes of the file
                     out.flush();
                     buf = new byte[512]; // get ready for next packet
                 }
